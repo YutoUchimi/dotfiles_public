@@ -121,10 +121,6 @@ fi
 ###--------------------------------------------------------------------------###
 
 
-## SVN and SSH
-export SSH_USER=uchimi
-export SVN_SSH="ssh -l ${SSH_USER}"
-
 # keyboard settings
 xmodmap ~/.Xmodmap 2>/dev/null
 
@@ -149,14 +145,14 @@ bind -x '"\ep" : percol-search-rostopic'
 
 source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
 
-rossetmaster localhost
-rossetip
+# rossetmaster localhost
+# rossetip
 
 show_ros () {
     echo "ROS_DISTRO: $ROS_DISTRO"
     echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
 }
-show_ros
+# show_ros
 
 # For tmux path
 export PATH=$HOME/.local/bin:$PATH
