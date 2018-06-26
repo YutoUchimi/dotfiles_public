@@ -4,6 +4,8 @@ set -x
 
 REPOSITORY_PATH=$HOME/dotfiles_public
 
+mv $HOME/.bashrc $HOME/.bashrc.orig
+
 cp -r \
    ${REPOSITORY_PATH}/.Xmodmap \
    ${REPOSITORY_PATH}/.aspell.conf \
