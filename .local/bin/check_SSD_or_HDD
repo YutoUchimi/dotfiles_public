@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ "$(uname)" != "Linux" ]; then
+    echo "\n\033[01;31m[$(basename $0)] Unsupported platform: $(uname)\033[00m\n"
+    exit 1
+fi
+
+if [ $(echo $(cat /sys/block/sda/queue/rotational)) -eq 0 ]; then
+    echo "SSD detected."
+elif [ $(echo $(cat /sys/block/sda/queue/rotational)) -eq 1 ]; then
+    echo "HDD detected."
+else
+    echo "SSD or HDD wasn't detected."
+fi
