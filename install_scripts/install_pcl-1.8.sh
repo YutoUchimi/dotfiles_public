@@ -20,6 +20,7 @@ else
     sudo apt-get install -y libflann-dev
     sudo apt-get install -y libpcap-dev
     sudo apt-get install -y libqhull-dev
+    sudo apt-get install -y libopenni-dev
     sudo updatedb
 
     HERE=$(pwd)
