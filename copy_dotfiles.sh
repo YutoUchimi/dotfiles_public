@@ -2,9 +2,11 @@
 
 set -x
 
-REPOSITORY_PATH=$(pwd)
+REPOSITORY_PATH=$(echo $(cd $(dirname $0) && pwd))
 
-mv $HOME/.bashrc $HOME/.bashrc.orig
+if [ -f ${HOME}/.bashrc ]; then
+    mv ${HOME}/.bashrc ${HOME}/.bashrc.orig
+fi
 
 cp -r \
    ${REPOSITORY_PATH}/.Xmodmap \
