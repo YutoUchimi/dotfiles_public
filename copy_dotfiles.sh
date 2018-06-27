@@ -2,7 +2,7 @@
 
 set -x
 
-REPOSITORY_PATH=$HOME/dotfiles_public
+REPOSITORY_PATH=$(pwd)
 
 mv $HOME/.bashrc $HOME/.bashrc.orig
 
@@ -17,5 +17,9 @@ cp -r \
    ${REPOSITORY_PATH}/.notify_time.sh \
    ${REPOSITORY_PATH}/.tmux.conf \
    $HOME
+
+sudo cp -r \
+   ${REPOSITORY_PATH}/usr \
+   /
 
 set +x
