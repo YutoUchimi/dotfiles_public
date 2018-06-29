@@ -143,7 +143,7 @@ bind -x '"\ep" : percol-search-rostopic'
 ## Rviz for a laptop user
 # export OGRE_RTT_MODE=Copy
 
-source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
+source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sort | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
 
 # rossetmaster localhost
 # rossetip
