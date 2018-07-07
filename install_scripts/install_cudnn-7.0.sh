@@ -4,10 +4,10 @@ set -x
 ubuntu_version=$(cat /etc/lsb-release | sed -n 2p | cut -d '=' -f 2)
 set +x
 
-if [ $(echo "$ubuntu_version != 14.04" | bc) -eq 1 ]; then
-    echo "\n\033[01;31m[$(basename $0)] Invalid Ubuntu release! This script only supports: Ubuntu 14.04\033[00m\n"
+if [ $(echo "$ubuntu_version != 14.04" | bc) -eq 1 -a $(echo "$ubuntu_version != 16.04" | bc) -eq 1 ]; then
+    echo "\n\033[01;31m[$(basename $0)] Invalid Ubuntu release! This script only supports: Ubuntu 14.04 or 16.04\033[00m\n"
     notify-send -i gnome-terminal -t 3000 -u normal \
-                "Failed to install!" "Invalid Ubuntu release! This script only supports: Ubuntu 14.04"
+                "Failed to install!" "Invalid Ubuntu release! This script only supports: Ubuntu 14.04 or 16.04"
 else
     set -x
 
