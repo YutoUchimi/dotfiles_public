@@ -7,10 +7,10 @@ emacs_version_float=$(echo "$emacs_version" | cut -d '.' -f -2)  # e.g. 24.4
 
 set +x
 
-if [ $(echo "$emacs_version_float == 24.4" | bc) -eq 1 ]; then
-    echo "\n\033[01;36m[$(basename $0)] Successfully installed! emacs 24.4 is already installed.\033[00m\n"
+if [ $(echo "$emacs_version_float >= 24.4" | bc) -eq 1 ]; then
+    echo "\n\033[01;36m[$(basename $0)] Successfully installed! emacs >= 24.4 is already installed.\033[00m\n"
     notify-send -i gnome-terminal -t 3000 -u normal \
-                "Successfully installed!" "emacs 24.4 is already installed."
+                "Successfully installed!" "emacs >= 24.4 is already installed."
 else
     set -x
 
