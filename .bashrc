@@ -145,14 +145,16 @@ bind -x '"\ep" : percol-search-rostopic'
 
 source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sort | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
 
-# rossetmaster localhost
-# rossetip
+if [ $(rospack find jsk_tools 2>/dev/null) ]; then
+    rossetmaster localhost
+    rossetip
+fi
 
 show_ros () {
     echo "ROS_DISTRO: $ROS_DISTRO"
     echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
 }
-# show_ros
+if ( which rosversion > /dev/null ); then show_ros; fi
 
 # For tmux path
 export PATH=$HOME/.local/bin:$PATH
@@ -175,7 +177,7 @@ show_cuda () {
         echo "CUDNN_VERSION: $CUDNN_VERSION"
     fi
 }
-#show_cuda
+if ( which nvcc > /dev/null ); then show_cuda; fi
 
 if ( which pycd.sh > /dev/null ); then source `which pycd.sh`; fi
 
