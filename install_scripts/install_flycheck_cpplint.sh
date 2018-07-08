@@ -13,7 +13,8 @@ if [ -f /usr/local/bin/cpplint.py ]; then
 fi
 
 set -x
-sudo cp $HOME/dotfiles/usr/local/bin/flycheck-google-cpplint.el /usr/local/bin/flycheck-google-cpplint.el
+REPOSITORY_PATH=$(echo $(cd $(dirname $0) && pwd))
+sudo cp ${REPOSITORY_PATH}/usr/local/bin/flycheck-google-cpplint.el /usr/local/bin/flycheck-google-cpplint.el
 set +x
 
 if [ -f /usr/local/bin/flycheck-google-cpplint.el ]; then
