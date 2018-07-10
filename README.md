@@ -101,5 +101,3 @@ bash
     ```
     sudo service restart ntp
     ```
-
-  - TODO: install ROS
