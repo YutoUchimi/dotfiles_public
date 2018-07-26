@@ -19,6 +19,7 @@ apt-get install
   - ccache
   - apt
   - cmake-curses-gui
+  - rlwrap
 
 
 pip install
