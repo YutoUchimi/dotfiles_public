@@ -1,12 +1,5 @@
 #!/bin/sh
 
-if [ "$(uname)" != "Linux" ]; then
-    echo "\n\033[01;31m[$(basename $0)] Unsupported platform: $(uname)\033[00m\n"
-    notify-send -i gnome-terminal -t 3000 -u normal \
-                "Failed to install!" "Unsupported platform: $(uname)"
-    exit 1
-fi
-
 set -x
 tmux_version=$(tmux -V | cut -d " " -f 2)
 set +x
@@ -16,6 +9,13 @@ if [ $(echo "$tmux_version == 2.5" | bc) -eq 1 ]; then
     notify-send -i gnome-terminal -t 3000 -u normal \
                 "Successfully installed!" "tmux is already installed."
     exit 0
+fi
+
+if [ "$(uname)" != "Linux" ]; then
+    echo "\n\033[01;31m[$(basename $0)] Unsupported platform: $(uname)\033[00m\n"
+    notify-send -i gnome-terminal -t 3000 -u normal \
+                "Failed to install!" "Unsupported platform: $(uname)"
+    exit 1
 fi
 
 set -x

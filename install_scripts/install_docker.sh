@@ -4,24 +4,25 @@ if [ `which docker` ]; then
     echo "\n\033[01;36m[$(basename $0)] Successfully installed! docker is already installed.\033[00m\n"
     notify-send -i gnome-terminal -t 3000 -u normal \
                 "Successfully installed!" "docker is already installed."
-else
-    set -x
+    exit 0
+fi
 
-    HERE=$(pwd)
-    mkdir -p $HOME/Downloads
-    cd $HOME/Downloads
+set -x
 
-    curl -fsSL get.docker.com -o get-docker.sh
-    sh get-docker.sh
-    sudo usermod -aG docker $USER
+HERE=$(pwd)
+mkdir -p $HOME/Downloads
+cd $HOME/Downloads
 
-    cd $HERE
+curl -fsSL get.docker.com -o get-docker.sh
+sh get-docker.sh
+sudo usermod -aG docker $USER
 
-    set +x
+cd $HERE
 
-    if [ `which docker` ]; then
-        echo "\n\033[01;36m[$(basename $0)] Successfully installed! In order to use docker, please reboot computer.\033[00m\n"
-        notify-send -i gnome-terminal -t 3000 -u normal \
-                    "Successfully installed!" "In order to use docker, please reboot computer."
-    fi
+set +x
+
+if [ `which docker` ]; then
+    echo "\n\033[01;36m[$(basename $0)] Successfully installed! In order to use docker, please reboot computer.\033[00m\n"
+    notify-send -i gnome-terminal -t 3000 -u normal \
+                "Successfully installed!" "In order to use docker, please reboot computer."
 fi

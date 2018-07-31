@@ -13,7 +13,7 @@ if [ -f /usr/local/bin/cpplint.py ]; then
 fi
 
 set -x
-REPOSITORY_PATH=$(echo $(cd $(dirname $0) && pwd))
+REPOSITORY_PATH=$(echo $(cd $(dirname $0)/.. && pwd))
 sudo cp ${REPOSITORY_PATH}/usr/local/bin/flycheck-google-cpplint.el /usr/local/bin/flycheck-google-cpplint.el
 set +x
 

@@ -4,30 +4,31 @@ if [ -f /usr/local/include/eigen3/Eigen/Core ]; then
     echo "\n\033[01;36m[$(basename $0)] Successfully installed! Eigen3 is already installed.\033[00m\n"
     notify-send -i gnome-terminal -t 3000 -u normal \
                 "Successfully installed!" "Eigen3 is already installed."
-else
-    set -x
+    exit 0
+fi
 
-    HERE=$(pwd)
-    mkdir -p $HOME/Downloads
-    cd $HOME/Downloads
+set -x
 
-    wget bitbucket.org/eigen/eigen/get/3.3.3.tar.gz
-    tar zxf 3.3.3.tar.gz
-    cd eigen-eigen-67e894c6cd8f
-    mkdir build
-    cd build
-    cmake ..
-    sudo make install
+HERE=$(pwd)
+mkdir -p $HOME/Downloads
+cd $HOME/Downloads
 
-    cd $HERE
-    rm $HOME/Downloads/3.3.3.tar.gz
-    rm -rf $HOME/Downloads/eigen-eigen-67e894c6cd8f
+wget bitbucket.org/eigen/eigen/get/3.3.3.tar.gz
+tar zxf 3.3.3.tar.gz
+cd eigen-eigen-67e894c6cd8f
+mkdir build
+cd build
+cmake ..
+sudo make install
 
-    set +x
+cd $HERE
+rm $HOME/Downloads/3.3.3.tar.gz
+rm -rf $HOME/Downloads/eigen-eigen-67e894c6cd8f
 
-    if [ -f /usr/local/include/eigen3/Eigen/Core ]; then
-        echo "\n\033[01;36m[$(basename $0)] Successfully installed!\033[00m\n"
-        notify-send -i gnome-terminal -t 3000 -u normal \
-                    "Successfully installed!" "Eigen3 is installed."
-    fi
+set +x
+
+if [ -f /usr/local/include/eigen3/Eigen/Core ]; then
+    echo "\n\033[01;36m[$(basename $0)] Successfully installed!\033[00m\n"
+    notify-send -i gnome-terminal -t 3000 -u normal \
+                "Successfully installed!" "Eigen3 is installed."
 fi
