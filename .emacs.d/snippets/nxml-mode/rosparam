@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: rosparam
+# key: rosparam
+# --
+<rosparam>
+  $0
+</rosparam>

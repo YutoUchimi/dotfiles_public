@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: groupns
+# key: groupns
+# --
+<group ns="${1:ns}">
+  $0
+</group>
