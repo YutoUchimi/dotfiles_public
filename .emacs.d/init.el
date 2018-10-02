@@ -7,53 +7,69 @@
 
 ;;; Code:
 
-;; package archives
+;; Package archives
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/"))
 (package-initialize)
 
-;; automatically install packages
+;; Automatically install packages
 (defvar package-list
   '(
+    anzu
     auto-complete
     cmake-mode
+    color-theme
     dockerfile-mode
+    fill-column-indicator
     flycheck
     flycheck-popup-tip
     flycheck-pos-tip
     fuzzy
-    golden-ratio
+    gitconfig-mode
+    gitignore-mode
     hl-todo
+    hlinum
+    ido-ubiquitous
+    ido-vertical-mode
+    matlab-mode
     mozc
+    powerline
     rainbow-delimiters
+    smex
     trr
     yaml-mode
+    yasnippet
+    yasnippet-snippets
     ))
-(if (or (string= "24.4" emacs-version) (string< "24.4" emacs-version))
-    (setq package-list (append package-list '(
-                                              deferred
-                                              epc
-                                              jedi
-                                              markdown-mode
-                                              ))))
+(if (version<= "24.4" emacs-version)
+    (setq package-list
+          (append package-list
+                  '(
+                    deferred
+                    epc
+                    jedi
+                    markdown-mode
+                    ))))
 (unless package-archive-contents
   (package-refresh-contents))
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
 
-;; package required from function (string-trim ...)
-(if (or (string= "24.4" emacs-version) (string< "24.4" emacs-version))
+;; Package required from function (string-trim ...)
+(if (version<= "24.4" emacs-version)
     (require 'subr-x))
 
-;; setting for Japanese
+;; Setting for Japanese
 (require 'mozc)
 (set-language-environment "Japanese")
 (setq default-input-method "japanese-mozc")
 (prefer-coding-system 'utf-8)
 
-;; auto-complete
+;; Auto-complete
 (require 'auto-complete-config)
 (ac-config-default)
 (add-to-list 'ac-modes 'cmake-mode)
@@ -65,29 +81,29 @@
 (require 'fuzzy)
 (setq ac-use-fuzzy t)
 
-;; auto complete for python
+;; Auto complete for python
 (if (package-installed-p 'jedi)
     (progn (require 'jedi)
            (add-hook 'python-mode-hook
                      '(lambda ()
                         (jedi:setup)
                         (setq jedi:complete-on-dot t)
-                        (setq jedi:get-in-function-call-delay 50)
-                        (jedi:install-server)
+                        ;; (setq jedi:get-in-function-call-delay 50)
+                        ;; (jedi:install-server)
                         )))
   t)
 
-;; trr
+;; TRR
 (require 'trr)
 ;(setq TRR:japanese t) ; this line is unnecessary?
 
-;; flycheck
+;; Flycheck
 (require 'flycheck)
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook 'python-mode-hook '(lambda ()
                                (flycheck-select-checker 'python-flake8)))
 
-;; flycheck-cpplint
+;; Flycheck-cpplint
 ;; If roslint/cpplint exists, use that script
 ;; If not, use manually installed script
 (if (file-exists-p "/usr/local/bin/flycheck-google-cpplint.el")
@@ -103,60 +119,132 @@
           '(flycheck-googlelint-verbose "0")
           '(flycheck-googlelint-filter "-whitespace,+whitespace/braces")
           '(flycheck-googlelint-linelength "80")
-          ;; '(flycheck-googlelint-headers "hpp") ;; Not implemented in some cpplint version.
+          ;; headers is not implemented in some cpplint version.
+          ;; '(flycheck-googlelint-headers "hpp")
           '(flycheck-googlelint-extensions "c,cpp,h,hpp"))
-         (let (f)
-           (if (or (string= "24.4" emacs-version) (string< "24.4" emacs-version))
-               (setq f (concat "/opt/ros/"
-                               (string-trim (shell-command-to-string "rosversion -d"))
-                               "/lib/roslint/cpplint"))
-             (setq f "/opt/ros/indigo/lib/roslint/cpplint"))  ;; if emacs-version < 24.4
-           (if (file-exists-p f)
+         (let (fname)
+           (if (version<= "24.4" emacs-version)
+               (setq fname
+                     (concat "/opt/ros/"
+                             (string-trim
+                              (shell-command-to-string "rosversion -d"))
+                             "/lib/roslint/cpplint"))
+             (setq fname "/opt/ros/indigo/lib/roslint/cpplint"))
+           (if (file-exists-p fname)
                (custom-set-variables
-                '(flycheck-c/c++-googlelint-executable f))
+                '(flycheck-c/c++-googlelint-executable fname))
              t)
            )))
   t)
 
-;; display flycheck errors
+;; Display flycheck errors
 (eval-after-load 'flycheck
   (flycheck-pos-tip-mode))
 (eval-after-load 'flycheck
   (flycheck-popup-tip-mode))
 
-;; flyspell-mode
+;; Flyspell-mode
 (mapc
  (lambda (hook)
    (add-hook hook 'flyspell-prog-mode))
  '(
-   ;; enable flyspell-mode only in comment region
-   ;; yatex-mode-hook
+   ;; Enable flyspell-mode only in comment region
+   ;; python-mode-hook
    ))
 (mapc
    (lambda (hook)
      (add-hook hook '(lambda () (flyspell-mode 1))))
    '(
-     ;; enable flyspell-mode
+     ;; Enable flyspell-mode
      ;; c-mode-common-hook
      ;; emacs-lisp-mode-hook
      ;; yatex-mode-hook
      ))
 
-;; ignore start message
-(setq inhibit-startup-message t)
+;; YASnippet
+(require 'yasnippet)
+(define-key yas-minor-mode-map (kbd "C-x i i") 'yas-insert-snippet)
+(define-key yas-minor-mode-map (kbd "C-x i n") 'yas-new-snippet)
+(define-key yas-minor-mode-map (kbd "C-x i v") 'yas-visit-snippet-file)
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-minor-mode-map (kbd "<backtab>") 'yas-expand)
+(yas-global-mode 1)
 
-;; set key bind for "C-h" as backspace
+;; Fix for warnings in emacs25
+(unless (boundp 'ido-cur-list)
+  (setq-default ido-cur-item nil))
+(unless (boundp 'ido-default-item)
+  (setq-default ido-default-item nil))
+(unless (boundp 'ido-cur-list)
+  (setq-default ido-cur-list nil))
+(unless (boundp 'predicate)
+  (setq-default predicate nil))
+(unless (boundp 'inherit-input-method)
+  (setq-default inherit-input-method nil))
+
+;; Settigs for IDO
+(require 'ido)
+(require 'ido-vertical-mode)
+(require 'smex)
+(ido-mode 1)
+(ido-everywhere 1)
+(setq ido-enable-flex-matching t)
+(ido-ubiquitous-mode 1)
+(ido-vertical-mode 1)
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+
+;; Theme (disabeld with emacs -nw)
+(require 'color-theme)
+(color-theme-initialize)
+(if (display-graphic-p)
+    (load-theme 'misterioso t))
+
+;; Ignore start message
+(setq inhibit-startup-message t)
+(setq inhibit-startup-screen t)
+(setq inhibit-splash-screen t)
+
+;; Share clipboard with system
+;; (case system-type
+;;   ('darwin
+;;    (unless window-system
+;;      (setq interprogram-cut-function
+;;            (lambda (text &optional push)
+;;              (let* ((process-connection-type nil)
+;;                     (pbproxy
+;;                      (start-process "pbcopy" "pbcopy" "/usr/bin/pbcopy")))
+;;                (process-send-string pbproxy text)
+;;                (process-send-eof pbproxy))))))
+;;   ('gnu/linux
+;;    (progn
+;;      (setq-default x-select-enable-clipboard t)
+;;      (defun xsel-cut-function (text &optional push)
+;;        (with-temp-buffer
+;;          (insert text)
+;;          (call-process-region (point-min) (point-max)
+;;                               "xsel" nil 0 nil "--clipboard" "--input")))
+;;      (defun xsel-paste-function()
+;;        (let ((xsel-output
+;;               (shell-command-to-string "xsel --clipboard --output")))
+;;          (unless (string= (car kill-ring) xsel-output)
+;;            xsel-output)))
+;;      (setq interprogram-cut-function 'xsel-cut-function)
+;;      (setq interprogram-paste-function 'xsel-paste-function))))
+
+;; Set key bind for "C-h" as backspace
 (global-set-key (kbd "C-h") 'delete-backward-char)
 
-;; disable TAB
+;; Disable TAB for indent
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 
-;; settings for c/c++ mode
+;; Settings for c/c++ mode
 (add-hook 'c-mode-hook '(lambda () (setq c-basic-offset 2)))
 (add-hook 'c++-mode-hook '(lambda () (setq c-basic-offset 2)))
 
-;; colorize TAB, zennkaku space, whitespace at end of line
+;; Colorize TAB, zennkaku space, whitespace at end of line
 (progn
   (require 'whitespace)
   (setq whitespace-style
@@ -190,19 +278,77 @@
   (global-whitespace-mode t)
   )
 
-;; no display menu bar
+;; Show counts of matching pattern while searcing
+(require 'anzu)
+(global-anzu-mode 1)
+(custom-set-variables
+ '(anzu-mode-lighter "")
+ '(anzu-deactivate-region t)
+ '(anzu-search-threshold 1000))
+
+;; Customize mode line
+(require 'powerline)
+(powerline-default-theme)
+
+;; No display menu bar
 (menu-bar-mode -1)
 
-;; display line number
+;; Display line number
+(require 'hlinum)
 (global-linum-mode t)
+(hlinum-activate)
+(custom-set-faces
+ '(linum-highlight-face ((t (:foreground "black"
+                             :background "red")))))
 
-;; display column number
+;; Display column number
 (column-number-mode t)
 
-;; colorize corresponding parenthesis
+;; Show fill-column
+(if (version<= "25" emacs-version)
+    (progn
+      (require 'fill-column-indicator)
+      (setq-default fci-rule-column 79)
+      (setq-default fci-rule-color "gray")
+      (let ((fci-mode-list
+             '(
+               c-mode-hook
+               c++-mode-hook
+               cmake-mode-hook
+               dockerfile-mode-hook
+               emacs-lisp-mode-hook
+               lisp-mode-hook
+               markdown-mode-hook
+               nxml-mode-hook
+               python-mode-hook
+               sh-mode-hook
+               yaml-mode-hook
+               )))
+        (dolist (fci-mode- fci-mode-list)
+          (add-hook fci-mode-
+                    '(lambda ()
+                       (setq fci-rule-column 79)
+                       (fci-mode)
+                       (turn-on-fci-mode))))
+        ))
+  t)
+
+;; Show end of buffer
+(setq-default indicate-empty-lines t)
+
+;; No more saving backup files
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+
+;; Highlight current line
+(global-hl-line-mode t)
+(custom-set-faces
+ '(hl-line ((t (:background "gray10")))))
+
+;; Colorize corresponding parenthesis
 (show-paren-mode 1)
 
-;; colorize corresponding parentheses (deeper)
+;; Colorize corresponding parentheses (deeper)
 (require 'rainbow-delimiters)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (custom-set-faces
@@ -221,57 +367,60 @@
    ((t (:foreground "yellow" :inverse-video t :weight bold))))
  )
 
-;; golden ratio
-;; (require 'golden-ratio)
-;; (golden-ratio-mode 1)
+;; Automatically reload buffer
+(global-auto-revert-mode t)
 
-;; scroll
+;; Distinct same-name files
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+
+;; Scroll
 (setq scroll-conservatively 1)
 (setq scroll-margin 5)
 (setq next-screen-context-lines 10)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 5)))
+(setq mouse-wheel-progressive-speed nil)
 
-;; disable to show cursor in non-selected windows
+;; Disable to show cursor in non-selected windows
 (setq cursor-in-non-selected-windows nil)
 
-;; define key bind for jumping to line
+;; Define key bind for jumping to line
 (global-set-key "\C-xj" 'goto-line)
 
-;; display current function name
+;; Display current function name
 (which-function-mode 1)
 
-;; automatically open with selected mode
+;; Automatically open with selected mode
 (require 'dockerfile-mode)
 (setq auto-mode-alist
       (append '(
                 ("CMakeLists\\.txt\\'" . cmake-mode)
                 ("Dockerfile\\'" . dockerfile-mode)
-                ("\\.bash_aliases\\'" . shell-script-mode)
+                ("\\.bash_aliases\\'" . sh-mode)
                 ("\\.cfg\\'" . python-mode)
                 ("\\.cu\\'" . c++-mode)
                 ("\\.md\\'" . markdown-mode)
-                ("\\.launch\\'" . xml-mode)
+                ("\\.launch\\'" . nxml-mode)
                 ("\\.rosinstall\\'" . yaml-mode)
-                ("\\.test\\'" . xml-mode)
-                ("\\.world\\'" . xml-mode)
+                ("\\.test\\'" . nxml-mode)
+                ("\\.world\\'" . nxml-mode)
                 ("\\.ya?ml\\'" . yaml-mode)
                 )
               auto-mode-alist))
 (put 'upcase-region 'disabled nil)
 
-;; rosemacs
-(add-to-list 'load-path (concat "/opt/ros/"
-                                (string-trim (shell-command-to-string "rosversion -d"))
-                                "/share/emacs/site-lisp"))
+;; ROSemacs
+(add-to-list 'load-path
+             (concat "/opt/ros/"
+                     (string-trim (shell-command-to-string "rosversion -d"))
+                     "/share/emacs/site-lisp"))
 (if (package-installed-p 'rosemacs-config)
     (require 'rosemacs-config))
 
-;; backup files go into .~ directory now
-(add-to-list 'backup-directory-alist (cons "." ".~"))
-
-;; open png, jpg files as image
+;; Open png, jpg files as image (disabled when emacs -nw)
 (setq auto-image-file-mode t)
 
-;; highlight special keywords
+;; Highlight special keywords
 (require 'hl-todo)
 (global-hl-todo-mode)
 (custom-set-faces
