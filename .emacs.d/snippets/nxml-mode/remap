@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: remap
+# key: remap
+# --
+<remap from="${1:from}" to="${2:to}"/>
+$0

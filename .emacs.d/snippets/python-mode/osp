@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: osp
+# key: osp
+# --
+import os.path as osp
+$0

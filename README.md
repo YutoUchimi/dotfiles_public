@@ -20,6 +20,8 @@ apt-get install
   - apt
   - cmake-curses-gui
   - rlwrap
+  - libgnome2-bin
+  - xsel
 
 
 pip install
