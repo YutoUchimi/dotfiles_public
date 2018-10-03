@@ -51,7 +51,7 @@ __git_complete gst _git_status
 __git_complete gt _git_tree
 
 # emacs
-if [ -f $(which emacs25) ]; then
+if ( which emacs25 > /dev/null ); then
     alias e='emacs25 -nw'
 else
     alias e="emacs -nw"
