@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import argparse
+import shlex
+import subprocess
+
+
+def video_hstack(in_video_1, in_video_2, out_video):
+    cmd = 'ffmpeg -i {} -i {} -filter_complex' \
+          ' "[0:v]pad=iw*2:ih:0:0[int2]; [int2][1:v]overlay=W/2:0[out]"' \
+          ' -map "[out]" -c:v libx264 -crf 23 -preset veryfast {}'
+    cmd = cmd.format(in_video_1, in_video_2, out_video)
+    subprocess.call(shlex.split(cmd))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('in_video_1')
+    parser.add_argument('in_video_2')
+    parser.add_argument('out_video')
+    args = parser.parse_args()
+
+    in_video_1 = args.in_video_1
+    in_video_2 = args.in_video_2
+    out_video = args.out_video
+
+    video_hstack(in_video_1, in_video_2, out_video)
+
+
+if __name__ == '__main__':
+    main()
