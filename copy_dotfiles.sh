@@ -20,8 +20,4 @@ cp -r \
    ${REPOSITORY_PATH}/.tmux.conf \
    $HOME
 
-sudo cp -r \
-   ${REPOSITORY_PATH}/usr \
-   /
-
 set +x

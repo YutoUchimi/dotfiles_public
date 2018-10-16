@@ -106,10 +106,10 @@
 ;; Flycheck-cpplint
 ;; If roslint/cpplint exists, use that script
 ;; If not, use manually installed script
-(if (file-exists-p "/usr/local/bin/flycheck-google-cpplint.el")
+(if (file-exists-p "~/.local/lib/flycheck-google-cpplint.el")
     (eval-after-load 'flycheck
       '(progn
-         (load "/usr/local/bin/flycheck-google-cpplint.el")
+         (load "~/.local/lib/flycheck-google-cpplint.el")
          (defun enable-cpplint ()
            (flycheck-select-checker 'c/c++-googlelint))
          (add-hook 'c-mode-hook 'enable-cpplint)

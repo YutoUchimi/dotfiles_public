@@ -14,10 +14,10 @@ fi
 
 set -x
 REPOSITORY_PATH=$(echo $(cd $(dirname $0)/.. && pwd))
-sudo cp ${REPOSITORY_PATH}/usr/local/bin/flycheck-google-cpplint.el /usr/local/bin/flycheck-google-cpplint.el
+sudo cp ${REPOSITORY_PATH}/.local/lib/flycheck-google-cpplint.el ${HOME}/.local/lib/flycheck-google-cpplint.el
 set +x
 
-if [ -f /usr/local/bin/flycheck-google-cpplint.el ]; then
+if [ -f ${HOME}/.local/lib/flycheck-google-cpplint.el ]; then
     echo "\n\033[01;36m[$(basename $0)] Successfully installed! flycheck-google-cpplint.el is installed.\033[00m\n"
     notify-send -i gnome-terminal -t 3000 -u normal \
                 "Successfully installed!" "flycheck-google-cpplint.el is installed."
