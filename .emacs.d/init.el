@@ -132,7 +132,8 @@
              (setq fname "/opt/ros/indigo/lib/roslint/cpplint"))
            (if (file-exists-p fname)
                (custom-set-variables
-                '(flycheck-c/c++-googlelint-executable fname))
+                '(flycheck-c/c++-googlelint-executable fname)
+                '(flycheck-googlelint-linelength "120"))
              t)
            )))
   t)
@@ -308,7 +309,7 @@
 (if (version<= "25" emacs-version)
     (progn
       (require 'fill-column-indicator)
-      (setq-default fci-rule-column 79)
+      (setq-default fci-rule-column 80)
       (setq-default fci-rule-color "gray")
       (let ((fci-mode-list
              '(
@@ -325,9 +326,25 @@
                yaml-mode-hook
                )))
         (dolist (fci-mode- fci-mode-list)
+          (cond
+           ;; python-mode => max column: 79
+           ((eq fci-mode- 'python-mode-hook)
+            (add-hook fci-mode-
+                      '(lambda () (setq-default fci-rule-column 79))))
+           ;; c++-mode for ROS => max column: 120
+           ((and (eq fci-mode- 'c++-mode-hook)
+                 (file-exists-p
+                  (if (version<= "24.4" emacs-version)
+                      (concat
+                       "/opt/ros/"
+                       (string-trim (shell-command-to-string "rosversion -d"))
+                       "/lib/roslint/cpplint")
+                    "/opt/ros/indigo/lib/roslint/cpplint")))
+            (add-hook fci-mode-
+                      '(lambda () (setq-default fci-rule-column 120))))
+           )
           (add-hook fci-mode-
                     '(lambda ()
-                       (setq fci-rule-column 79)
                        (fci-mode)
                        (turn-on-fci-mode))))
         ))
@@ -399,6 +416,8 @@
                 ("\\.bash_aliases\\'" . sh-mode)
                 ("\\.cfg\\'" . python-mode)
                 ("\\.cu\\'" . c++-mode)
+                ("\\.h\\'" . c++-mode)
+                ("\\.ino\\'" . c-mode)
                 ("\\.md\\'" . markdown-mode)
                 ("\\.launch\\'" . nxml-mode)
                 ("\\.rosinstall\\'" . yaml-mode)
