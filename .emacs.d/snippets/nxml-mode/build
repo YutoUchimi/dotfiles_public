@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: build
+# key: build
+# --
+<build_depend>${1:dependency}</build_depend>
+$0

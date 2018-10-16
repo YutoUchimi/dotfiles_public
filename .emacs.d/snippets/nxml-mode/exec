@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: exec
+# key: exec
+# --
+<exec_depend>${1:dependency}</exec_depend>
+$0

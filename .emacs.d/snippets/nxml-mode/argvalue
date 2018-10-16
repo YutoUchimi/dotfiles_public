@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: argvalue
+# key: argvalue
+# --
+<arg name="${1:name}" value="${2:value}"/>
+$0

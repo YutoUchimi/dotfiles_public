@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: depend
+# key: depend
+# --
+<depend>${1:dependency}</depend>
+$0

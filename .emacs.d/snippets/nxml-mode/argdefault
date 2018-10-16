@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: argdefault
+# key: argdefault
+# --
+<arg name="${1:name}" default="${2:default}"/>
+$0

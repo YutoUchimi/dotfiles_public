@@ -1,6 +1,10 @@
+# -*- mode: snippet -*-
 # key: node
 # name: node
 # --
 <node name="${1:name}"
-      pkg="${2:pkg}" type="${3:type}"/>
-$0
+      pkg="${2:pkg}" type="${3:type}"
+      output="screen"
+      respawn="true">
+  $0
+</node>
