@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ $ROS_DISTRO == "kinetic" ]; then
     echo "\n\033[01;36m[$(basename $0)] Successfully installed! ROS kinetic is already installed.\033[00m\n"
