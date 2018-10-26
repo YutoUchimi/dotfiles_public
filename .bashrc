@@ -143,8 +143,10 @@ bind -x '"\ep" : percol-search-rostopic'
 ## Rviz for a laptop user
 # export OGRE_RTT_MODE=Copy
 
-if [ $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null) ]; then
+if [ $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sed -n 1p) ]; then
     source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sort | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
+elif [ $ROS_DISTRO ]; then
+    source /opt/ros/${ROS_DISTRO}/setup.bash
 fi
 
 if [ $(rospack find jsk_tools 2>/dev/null) ]; then
