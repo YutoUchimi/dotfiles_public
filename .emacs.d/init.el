@@ -73,6 +73,8 @@
 (require 'auto-complete-config)
 (ac-config-default)
 (add-to-list 'ac-modes 'cmake-mode)
+(add-to-list 'ac-modes 'dockerfile-mode)
+(add-to-list 'ac-modes 'markdown-mode)
 (add-to-list 'ac-modes 'nxml-mode)
 (add-to-list 'ac-modes 'shell-mode)
 (setq ac-delay 0.02)  ;; time to auto-complete
