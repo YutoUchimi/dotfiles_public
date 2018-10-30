@@ -1,0 +1,3 @@
+00 * * * * . $HOME/.cron_functions.sh; notify_time
+
+* * * * * . $HOME/.cron_functions.sh; run_xmodmap $HOME/.Xmodmap
