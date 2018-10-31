@@ -15,6 +15,7 @@ cp -r \
    ${REPOSITORY_PATH}/.bashrc \
    ${REPOSITORY_PATH}/.cron_functions.sh \
    ${REPOSITORY_PATH}/.emacs.d \
+   ${REPOSITORY_PATH}/.gitconfig \
    ${REPOSITORY_PATH}/.gitignore_global \
    ${REPOSITORY_PATH}/.local \
    ${REPOSITORY_PATH}/.tmux.conf \
