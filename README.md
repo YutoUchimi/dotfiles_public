@@ -44,16 +44,6 @@ Setup
 
 bash
 ----
-  - change Japanese name dirs to English name in HOME dir
-    ```
-    LANG=C;xdg-user-dirs-gtk-update
-    ```
-
-  - disable CapsLock
-    ```
-    dconf write /org/gnome/desktop/input-sources/xkb-options "['ctrl:nocaps']"
-    ```
-
   - install necessary packages
     ```
     sudo apt-get update
@@ -81,26 +71,4 @@ bash
   - after settings above...
     ```
     sudo service ssh restart
-    ```
-
-  - if a list appears when do this command,
-    ```
-    ntpdc -nc monlist localhost
-    ```
-    then add below to the last line in /etc/ntp.conf
-
-
-/etc/ntp.conf
--------------
-  - settings for security
-    ```
-    disable monitor
-    ```
-
-
-bash
-----
-  - now restart ntp
-    ```
-    sudo service restart ntp
     ```
