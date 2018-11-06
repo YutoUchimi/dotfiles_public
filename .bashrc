@@ -121,35 +121,27 @@ fi
 ###--------------------------------------------------------------------------###
 
 
-# keyboard settings
-xmodmap ~/.Xmodmap 2>/dev/null
-
 # C-r: percol history search
-percol-search-history() {
-  local l=$(HISTTIMEFORMAT= history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | percol --query "$READLINE_LINE")
+percol-search-history () {
+    local l=$(HISTTIMEFORMAT= history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | \
+                  percol --query "$READLINE_LINE")
   READLINE_LINE="$l"
   READLINE_POINT=${#l}
 }
 bind -x '"\C-r": percol-search-history'
 
-# Esc-p : rostopic search
-percol-search-rostopic() {
-  local l=$(rostopic list | percol)
-  READLINE_LINE="$READLINE_LINE$l"
-  READLINE_POINT=${#READLINE_LINE}
-}
-bind -x '"\ep" : percol-search-rostopic'
-
 ## Rviz for a laptop user
 # export OGRE_RTT_MODE=Copy
 
-if [ $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sed -n 1p) ]; then
-    source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2>/dev/null | sort | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
+if [ $(find $HOME -maxdepth 3 -name ".catkin_tools" 2> /dev/null | \
+           sed -n 1p) ]; then
+    source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2> /dev/null | \
+                 sort | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
 elif [ $ROS_DISTRO ]; then
     source /opt/ros/${ROS_DISTRO}/setup.bash
 fi
 
-if [ $(rospack find jsk_tools 2>/dev/null) ]; then
+if [ $(rospack find jsk_tools 2> /dev/null) ]; then
     rossetmaster localhost
     rossetip
 fi
@@ -158,7 +150,18 @@ show_ros () {
     echo "ROS_DISTRO: $ROS_DISTRO"
     echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
 }
-if ( which rosversion > /dev/null ); then show_ros; fi
+
+percol-search-rostopic () {
+  local l=$(rostopic list | percol)
+  READLINE_LINE="$READLINE_LINE$l"
+  READLINE_POINT=${#READLINE_LINE}
+}
+
+if ( which rosversion > /dev/null ); then
+    show_ros
+    # Esc-p : rostopic search
+    bind -x '"\ep" : percol-search-rostopic'
+fi
 
 # For tmux path
 export PATH=$HOME/.local/bin:$PATH
@@ -170,13 +173,18 @@ export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
 show_cuda () {
     # cuda
-    CUDA_VERSION=$(command nvcc --version | sed -n 4p | sed 's/.*, release .*, V\(.*\)/\1/')
+    CUDA_VERSION=$(command nvcc --version | sed -n 4p | \
+                       sed 's/.*, release .*, V\(.*\)/\1/')
     echo "CUDA_VERSION: $CUDA_VERSION"
     # cudnn
     if [ -e $CUDA_HOME/include/cudnn.h ]; then
-        CUDNN_MAJOR=$(cat $CUDA_HOME/include/cudnn.h | grep '#define CUDNN_MAJOR' | awk '{print $3}')
-        CUDNN_MINOR=$(cat $CUDA_HOME/include/cudnn.h | grep '#define CUDNN_MINOR' | awk '{print $3}')
-        CUDNN_PATCHLEVEL=$(cat $CUDA_HOME/include/cudnn.h | grep '#define CUDNN_PATCHLEVEL' | awk '{print $3}')
+        CUDNN_MAJOR=$(cat $CUDA_HOME/include/cudnn.h | \
+                          grep '#define CUDNN_MAJOR' | awk '{print $3}')
+        CUDNN_MINOR=$(cat $CUDA_HOME/include/cudnn.h | \
+                          grep '#define CUDNN_MINOR' | awk '{print $3}')
+        CUDNN_PATCHLEVEL=$(cat $CUDA_HOME/include/cudnn.h | \
+                               grep '#define CUDNN_PATCHLEVEL' | \
+                               awk '{print $3}')
         CUDNN_VERSION="$CUDNN_MAJOR.$CUDNN_MINOR.$CUDNN_PATCHLEVEL"
         echo "CUDNN_VERSION: $CUDNN_VERSION"
     fi
@@ -190,6 +198,13 @@ if ( which activate.sh > /dev/null ); then source `which activate.sh`; fi
 
 if [ "$CONDA_PREFIX" != "" ]; then
     source $CONDA_PREFIX/bin/activate $CONDA_DEFAULT_ENV
+elif [ $(find -L $HOME -maxdepth 5 -name activate 2> /dev/null | \
+             grep -E ".anaconda*/bin/activate" | sort | sed -n 1p) ]; then
+    source $(find -L $HOME -maxdepth 5 -name activate 2> /dev/null | \
+                 grep -E ".anaconda*/bin/activate" | sort | sed -n 1p)
+fi
+if [ "$CONDA_PREFIX" != "" ]; then
+    echo "CONDA_PREFIX: $CONDA_PREFIX"
 fi
 
 if [ $(crontab -l 2>/dev/null | wc -c | cut -d " " -f 1) -lt 1 ]; then
