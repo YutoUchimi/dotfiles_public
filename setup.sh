@@ -26,6 +26,7 @@ copy_dotfiles () {
        ${REPOSITORY_PATH}/.bash_aliases \
        ${REPOSITORY_PATH}/.bashrc \
        ${REPOSITORY_PATH}/.cron_functions.sh \
+       ${REPOSITORY_PATH}/.crontab \
        ${REPOSITORY_PATH}/.emacs.d \
        ${REPOSITORY_PATH}/.gitconfig \
        ${REPOSITORY_PATH}/.gitignore_global \
