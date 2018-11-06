@@ -10,7 +10,3 @@ notify_time () {
                 "$(date +\%H:\%M)" \
                 "$1"
 }
-
-run_xmodmap () {
-    xmodmap $1
-}
