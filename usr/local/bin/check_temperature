@@ -1,0 +1,112 @@
+#!/bin/sh
+
+
+check_root () {
+    if [ $(whoami) != "root" ]; then
+        echo "Need to be root. Aborting..."
+        return 1
+    fi
+}
+
+
+check_battery_temperature () {
+    if ( ! which acpi > /dev/null ); then
+        echo "acpi is not installed."
+        return 1
+    fi
+
+    battery_temp=$(acpi -t | grep "degrees C" | cut -d " " -f 4)
+    battery_critical_temp=$(acpi -V | grep "switches to mode critical at temperature" | \
+        sed -e "s/.* switches to mode critical at temperature \(.*\) degrees C/\1/g")
+    if [ ! -z ${battery_temp} ] && [ ! -z ${battery_critical_temp} ]; then
+        if [ $(echo "${battery_temp} >= ${battery_critical_temp}" | bc) -eq 1 ]; then
+            echo "Detected high temperature at battery."
+            echo "Printing output of command [acpi -V]:"
+            echo "$(acpi -V)"
+        fi
+    fi
+}
+
+
+check_cpu_temperature () {
+    if ( ! which sensors > /dev/null ); then
+        echo "sensors is not installed."
+        return 1
+    fi
+
+    for core_id in $(sensors | grep "Core" | sed -e "s/Core \(.*\):.*/\1/g"); do
+        core_info=$(sensors | grep "Core ${core_id}")
+        cpu_current_temp=$(echo ${core_info} | \
+            sed -e "s/Core .*:.*+\(.*\)°C *(high = +\(.*\)°C, crit = +\(.*\)°C)/\1/g")
+        cpu_high_temp=$(echo ${core_info} | \
+            sed -e "s/Core .*:.*+\(.*\)°C *(high = +\(.*\)°C, crit = +\(.*\)°C)/\2/g")
+        cpu_critical_temp=$(echo ${core_info} | \
+            sed -e "s/Core .*:.*+\(.*\)°C *(high = +\(.*\)°C, crit = +\(.*\)°C)/\3/g")
+        if [ $(echo "${cpu_current_temp} >= ${cpu_high_temp}" | bc) -eq 1 ]; then
+            local flag=1
+            break
+        fi
+    done
+    if [ ! -z ${flag} ]; then
+        echo "Detected high temperature at CPU."
+        echo "Printing output of command [sensors]:"
+        echo "$(sensors)"
+    fi
+}
+
+
+check_hdd_temperature () {
+    if ( ! which hddtemp > /dev/null ); then
+        echo "hddtemp is not installed."
+        return 1
+    fi
+    if ( ! which nkf > /dev/null ); then
+        echo "nkf is not installed."
+        return 1
+    fi
+
+    local hdd_critical_temp=60
+    for disk in $(ls /dev/sd?); do
+        hdd_temp=$(hddtemp -n -q ${disk})
+        if [ ${hdd_temp} -ge ${hdd_critical_temp} ]; then
+            echo "Detected high temperature at HDD/SSD."
+            echo "Printing output of command [hddtemp ${disk} | nkf -e]:"
+            echo "$(hddtemp ${disk} | nkf -e)"
+        fi
+    done
+}
+
+
+check_gpu_temperature () {
+    if ( ! which nvidia-smi > /dev/null ); then
+        echo "nvidia-smi is not installed."
+        return 1
+    fi
+
+    for gpu_id in $(nvidia-smi -L | sed -e "s/GPU \(.\): .*/\1/g"); do
+        gpu_temp=$(nvidia-smi -i ${gpu_id} \
+                              --query-gpu=temperature.gpu \
+                              --format=csv,noheader)
+        gpu_slowdown_temp=$(nvidia-smi -i ${gpu_id} -q -d temperature | \
+            grep "GPU Slowdown Temp" | sed -e "s/.*GPU Slowdown Temp.* : \(.*\) C/\1/g")
+        if [ $(echo "${gpu_temp} >= ${gpu_slowdown_temp}" | bc) -eq 1 ]; then
+            echo "Detected high temperature at GPU."
+            echo "Printing output of command [nvidia-smi -i ${gpu_id} -q -d temperature]:"
+            echo "$(nvidia-smi -i ${gpu_id} -q -d temperature)"
+        fi
+    done
+}
+
+
+check_temperature () {
+    check_root
+    if [ $? -eq 0 ]; then
+        check_battery_temperature
+        check_cpu_temperature
+        check_hdd_temperature
+        check_gpu_temperature
+    fi
+}
+
+
+check_temperature
