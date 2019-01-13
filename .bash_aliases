@@ -30,7 +30,9 @@ alias gfa='git fetch --all -p'
 alias gl='git log'
 alias gp='git push'
 alias grb='git rebase'
+alias grbi='git rebase -i'
 alias grm='git remote -v'
+alias grs='git reset'
 alias gst='git status'
 alias gt='git tree'
 
@@ -47,7 +49,9 @@ __git_complete gfa _git_fetch
 __git_complete gl _git_log
 __git_complete gp _git_push
 __git_complete grb _git_rebase
+__git_complete grbi _git_rebase
 __git_complete grm _git_remote
+__git_complete grs _git_reset
 __git_complete gst _git_status
 __git_complete gt _git_tree
 
