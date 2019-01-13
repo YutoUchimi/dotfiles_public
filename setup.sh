@@ -2,10 +2,12 @@
 
 set_cmd_for_sudo () {
     if [ $(whoami) = 'root' ]; then
+        sensors_detect_cmd='sensors-detect'
         service_cmd='service'
         tee_cmd='tee'
         touch_cmd='touch'
     else
+        sensors_detect_cmd='sudo sensors-detect'
         service_cmd='sudo service'
         tee_cmd='sudo tee'
         touch_cmd='sudo touch'
@@ -81,10 +83,17 @@ setup_ntp_daemon () {
 }
 
 
+setup_lm_sensors () {
+    yes yes | $sensors_detect_cmd
+    $service_cmd kmod start
+}
+
+
 set -x
 set_cmd_for_sudo
 copy_dotfiles
 home_dir_name_ja2en
 setup_keybind
 setup_ntp_daemon
+setup_lm_sensors
 set +x
