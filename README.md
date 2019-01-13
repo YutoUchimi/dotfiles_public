@@ -22,6 +22,10 @@ apt-get install
   - rlwrap
   - libgnome2-bin
   - xsel
+  - lm-sensors
+  - hddtemp
+  - nkf
+  - acpi
 
 
 pip install
