@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+*/10 * * * * . $HOME/.cron_functions.sh; warn_high_temperature $(whoami)@$(hostname) uchimi@jsk.imi.i.u-tokyo.ac.jp
