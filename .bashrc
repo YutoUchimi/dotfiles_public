@@ -186,8 +186,17 @@ show_cuda () {
                                grep '#define CUDNN_PATCHLEVEL' | \
                                awk '{print $3}')
         CUDNN_VERSION="$CUDNN_MAJOR.$CUDNN_MINOR.$CUDNN_PATCHLEVEL"
-        echo "CUDNN_VERSION: $CUDNN_VERSION"
+    elif [ -e /usr/include/cudnn.h ]; then
+        CUDNN_MAJOR=$(cat /usr/include/cudnn.h | \
+                             grep '#define CUDNN_MAJOR' | awk '{print $3}')
+        CUDNN_MINOR=$(cat /usr/include/cudnn.h | \
+                             grep '#define CUDNN_MINOR' | awk '{print $3}')
+        CUDNN_PATCHLEVEL=$(cat /usr/include/cudnn.h | \
+                                  grep '#define CUDNN_PATCHLEVEL' | \
+                                  awk '{print $3}')
+        CUDNN_VERSION="$CUDNN_MAJOR.$CUDNN_MINOR.$CUDNN_PATCHLEVEL"
     fi
+    echo "CUDNN_VERSION: $CUDNN_VERSION"
 }
 if ( which nvcc > /dev/null ); then show_cuda; fi
 
