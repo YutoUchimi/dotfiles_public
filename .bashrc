@@ -165,7 +165,7 @@ fi
 
 # For tmux path
 export PATH=$HOME/.local/bin:$PATH
-export TERM=xterm
+export TERM=xterm-256color
 
 export CUDA_HOME=/usr/local/cuda
 export PATH=$CUDA_HOME/bin:$PATH
