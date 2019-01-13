@@ -1,3 +1,6 @@
+[user]
+	email = momosama1072@gmail.com
+	name = Yuto Uchimi
 [core]
 	excludesfile = ~/.gitignore_global
 	editor = emacs -nw
