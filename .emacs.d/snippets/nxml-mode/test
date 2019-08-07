@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: test
+# key: test
+# --
+<test test-name="${1:test-name}"
+      name="${2:name}"
+      pkg="${3:pkg}" type="${4:type}"
+      retry="3">
+  $0
+</test>

@@ -4,7 +4,7 @@
 # --
 <node name="${1:name}"
       pkg="${2:pkg}" type="${3:type}"
-      args="${3:args}"
+      args="${4:args}"
       output="screen"
       respawn="true">
   $0

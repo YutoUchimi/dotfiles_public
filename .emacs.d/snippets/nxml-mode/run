@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: run
+# key: run
+# --
+<run_depend>${1:dependency}</run_depend>
+$0
