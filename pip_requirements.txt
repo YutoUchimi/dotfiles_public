@@ -1,0 +1,11 @@
+chainer
+cupy
+flake8
+grip
+hacking
+ipython
+matplotlib
+numpy
+percol
+pip==9.0.3
+setuptools
