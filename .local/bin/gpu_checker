@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+from distutils.version import StrictVersion
 import os
 import os.path as osp
 import sys
@@ -13,12 +14,10 @@ try:
 except ImportError:
     print('Please run: pip install futures')
     sys.exit(1)
+
 import paramiko
 import six
 import yaml
-
-from distutils.version import StrictVersion
-
 
 if StrictVersion(paramiko.__version__) < StrictVersion('2.4.0'):
     print('Please install paramiko>=2.4.0.')
@@ -79,8 +78,13 @@ def main():
 
     cmds = [
         '$HOME/.local/bin/cuda-smi',
-        '''ps auxwww | awk '{print $1}' | sed s/+\$/$(command whoami | cut -c 8-)/ | egrep "$(command ls /home)" | sort | uniq -c | sort -nr | xargs''',  # NOQA
-        '''ps auxwww | egrep "$(command whoami | cut -c -7)" | grep "pts/" | grep -v "grep" | grep -v "sshd" | awk '{for (i=11; i<NF; i++){printf "%s%s", $i, OFS=" "} print $NF}' | grep -v "bash"''',  # NOQA
+        '''ps auxwww | awk '{print $1}' | \
+        sed s/+\$/$(command whoami | cut -c 8-)/ | \
+        egrep "$(command ls /home)" | sort | uniq -c | sort -nr | xargs''',
+        '''ps auxwww | egrep "$(command whoami | cut -c -7)" | grep "pts/" | \
+        grep -v "grep" | grep -v "sshd" | \
+        awk '{for (i=11; i<NF; i++){printf "%s%s", $i, OFS=" "} print $NF}' | \
+        grep -v "bash"''',
     ]
 
     with ProcessPoolExecutor(max_workers=4) as executor:
