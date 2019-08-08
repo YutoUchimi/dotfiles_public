@@ -118,106 +118,173 @@ if ! shopt -oq posix; then
 fi
 
 
-###--------------------------------------------------------------------------###
+###------------------------------  <function>  ------------------------------###
 
 
-# C-r: percol history search
-percol-search-history () {
+percol_search_history () {
     local l=$(HISTTIMEFORMAT= history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | \
                   percol --query "$READLINE_LINE")
-  READLINE_LINE="$l"
-  READLINE_POINT=${#l}
+    READLINE_LINE="$l"
+    READLINE_POINT=${#l}
 }
-bind -x '"\C-r": percol-search-history'
 
-## Rviz for a laptop user
-# export OGRE_RTT_MODE=Copy
 
-if [ $(find $HOME -maxdepth 3 -name ".catkin_tools" 2> /dev/null | \
-           sed -n 1p) ]; then
-    source $(find $HOME -maxdepth 3 -name ".catkin_tools" 2> /dev/null | \
-                 sort | sed -n 1p | sed s#.catkin_tools#devel/setup.bash#)
-elif [ $ROS_DISTRO ]; then
-    source /opt/ros/${ROS_DISTRO}/setup.bash
-fi
+set_catkin_workspace () {
+    if ( ! which rosversion > /dev/null ); then return; fi
 
-if [ $(rospack find jsk_tools 2> /dev/null) ]; then
-    rossetmaster localhost
-    rossetip
-fi
+    if [ $# -ne 0 ]; then
+        local ws_id=$1
+    else
+        local ws_id=1
+    fi
+
+    local setup_bash=$(find $HOME -maxdepth 3 -name ".catkin_tools" \
+                            2> /dev/null | sort | sed -n ${ws_id}p | \
+                           sed s#.catkin_tools#devel/setup.bash#)
+    if [ ! -z $setup_bash ] && [ -f $setup_bash ]; then
+        # Try to source catkin_workspace under home directory
+        source $setup_bash
+    else
+        # Try to source /opt/ros/${ROS_DISTRO}/setup.bash
+        local setup_bash=$(find /opt/ros -maxdepth 2 -name "setup.bash" \
+                                2> /dev/null | sort | sed -n ${ws_id}p)
+        if [ ! -z $setup_bash ] && [ -f $setup_bash ]; then
+            source $setup_bash
+        fi
+    fi
+
+    if [ $(rospack find jsk_tools 2> /dev/null) ]; then
+        rossetmaster localhost
+        rossetip
+    fi
+
+    # Esc-p : rostopic search
+    bind -x '"\ep" : percol_search_rostopic'
+
+    show_ros
+}
+
 
 show_ros () {
     echo "ROS_DISTRO: $ROS_DISTRO"
     echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
 }
 
-percol-search-rostopic () {
+
+percol_search_rostopic () {
   local l=$(rostopic list | percol)
   READLINE_LINE="$READLINE_LINE$l"
   READLINE_POINT=${#READLINE_LINE}
 }
 
-if ( which rosversion > /dev/null ); then
-    show_ros
-    # Esc-p : rostopic search
-    bind -x '"\ep" : percol-search-rostopic'
-fi
 
-# For tmux path
-export PATH=$HOME/.local/bin:$PATH
-export TERM=xterm-256color
+set_cuda () {
+    export CUDA_HOME=/usr/local/cuda
+    export PATH=$CUDA_HOME/bin:$PATH
+    export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+}
 
-export CUDA_HOME=/usr/local/cuda
-export PATH=$CUDA_HOME/bin:$PATH
-export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
 show_cuda () {
+    if ( ! which nvcc > /dev/null ); then
+        echo "[$0] To show CUDA, please run nvidia-cuda-toolkit.";
+        return;
+    fi
+
     # cuda
     CUDA_VERSION=$(command nvcc --version | sed -n 4p | \
                        sed 's/.*, release .*, V\(.*\)/\1/')
     echo "CUDA_VERSION: $CUDA_VERSION"
+
     # cudnn
-    if [ -e $CUDA_HOME/include/cudnn.h ]; then
-        CUDNN_MAJOR=$(cat $CUDA_HOME/include/cudnn.h | \
-                          grep '#define CUDNN_MAJOR' | awk '{print $3}')
-        CUDNN_MINOR=$(cat $CUDA_HOME/include/cudnn.h | \
-                          grep '#define CUDNN_MINOR' | awk '{print $3}')
-        CUDNN_PATCHLEVEL=$(cat $CUDA_HOME/include/cudnn.h | \
-                               grep '#define CUDNN_PATCHLEVEL' | \
-                               awk '{print $3}')
-        CUDNN_VERSION="$CUDNN_MAJOR.$CUDNN_MINOR.$CUDNN_PATCHLEVEL"
-    elif [ -e /usr/include/cudnn.h ]; then
-        CUDNN_MAJOR=$(cat /usr/include/cudnn.h | \
-                             grep '#define CUDNN_MAJOR' | awk '{print $3}')
-        CUDNN_MINOR=$(cat /usr/include/cudnn.h | \
-                             grep '#define CUDNN_MINOR' | awk '{print $3}')
-        CUDNN_PATCHLEVEL=$(cat /usr/include/cudnn.h | \
-                                  grep '#define CUDNN_PATCHLEVEL' | \
-                                  awk '{print $3}')
-        CUDNN_VERSION="$CUDNN_MAJOR.$CUDNN_MINOR.$CUDNN_PATCHLEVEL"
+    if [ -f $CUDA_HOME/include/cudnn.h ]; then
+        local prefix=$CUDA_HOME
+    elif [ -f /usr/include/cudnn.h ]; then
+        local prefix=/usr
     fi
+    local major=$(cat ${prefix}/include/cudnn.h 2> /dev/null | \
+                      grep '#define CUDNN_MAJOR' | awk '{print $3}')
+    local minor=$(cat ${prefix}/include/cudnn.h 2> /dev/null | \
+                      grep '#define CUDNN_MINOR' | awk '{print $3}')
+    local patchlevel=$(cat ${prefix}/include/cudnn.h 2> /dev/null | \
+                           grep '#define CUDNN_PATCHLEVEL' | awk '{print $3}')
+    CUDNN_VERSION="${major}.${minor}.${patchlevel}"
     echo "CUDNN_VERSION: $CUDNN_VERSION"
 }
-if ( which nvcc > /dev/null ); then show_cuda; fi
 
-if ( which pycd.sh > /dev/null ); then source `which pycd.sh`; fi
 
-# autoenv
-if ( which activate.sh > /dev/null ); then source `which activate.sh`; fi
+set_anaconda () {
+    if [ ! -z $CONDA_PREFIX ] && [ ! -z $CONDA_DEFAULT_ENV ]; then
+        source $CONDA_PREFIX/bin/activate $CONDA_DEFAULT_ENV
+    else
+        if [ $# -ne 0 ]; then
+            local env_id=$1
+        else
+            local env_id=1
+        fi
 
-if [ "$CONDA_PREFIX" != "" ]; then
-    source $CONDA_PREFIX/bin/activate $CONDA_DEFAULT_ENV
-elif [ $(find -L $HOME -maxdepth 5 -name activate 2> /dev/null | \
-             grep -E ".anaconda*/bin/activate" | sort | sed -n 1p) ]; then
-    source $(find -L $HOME -maxdepth 5 -name activate 2> /dev/null | \
-                 grep -E ".anaconda*/bin/activate" | sort | sed -n 1p)
-fi
-if [ "$CONDA_PREFIX" != "" ]; then
-    echo "CONDA_PREFIX: $CONDA_PREFIX"
-fi
-
-if [ $(crontab -l 2>/dev/null | wc -c | cut -d " " -f 1) -lt 1 ]; then
-    if [ -f $HOME/.crontab ]; then
-        crontab $HOME/.crontab
+        local conda_activate=$(
+            find -L $HOME -maxdepth 5 -name activate 2> /dev/null | \
+                grep -E ".anaconda.*/bin/activate" | sort | sed -n ${env_id}p)
+        if [ -f $conda_activate ]; then
+            source $conda_activate
+        fi
     fi
-fi
+
+    show_anaconda
+}
+
+
+show_anaconda () {
+    echo "CONDA_PREFIX: $CONDA_PREFIX"
+}
+
+
+set_cron () {
+    if [ $(crontab -l 2>/dev/null | wc -c | cut -d " " -f 1) -lt 1 ]; then
+        if [ -f $HOME/.crontab ]; then
+            crontab $HOME/.crontab
+        fi
+    fi
+}
+
+
+###--------------------------------  <main>  --------------------------------###
+
+
+# SVN and SSH
+export SSH_USER=uchimi
+export SVN_SSH="ssh -l ${SSH_USER}"
+
+# C-r: percol history search
+bind -x '"\C-r": percol_search_history'
+
+# Setup ROS
+# Please specify which workspace to use by a number.
+set_catkin_workspace 1
+
+# Rviz for a laptop user
+export OGRE_RTT_MODE=Copy
+
+# Setup CUDA
+set_cuda
+show_cuda
+
+# Setup anaconda
+# Please specify which env to use by a number.
+# set_anaconda 1
+
+# Setup cron
+set_cron
+
+# For additional path
+export PATH=$HOME/.local/bin:$PATH
+
+# For color support in emacs & tmux
+export TERM=xterm-256color
+
+# pycd (To use this, run "pip install pycd")
+if ( which pycd.sh > /dev/null ); then source $(which pycd.sh); fi
+
+# autoenv (To use this, run "pip install autoenv")
+if ( which activate.sh > /dev/null ); then source $(which activate.sh); fi
