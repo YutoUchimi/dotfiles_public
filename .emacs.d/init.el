@@ -21,7 +21,6 @@
     anzu
     auto-complete
     cmake-mode
-    color-theme
     diminish
     dockerfile-mode
     fill-column-indicator
@@ -213,8 +212,9 @@
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 
 ;; Theme
-(require 'color-theme)
-(color-theme-initialize)
+(when (package-installed-p 'color-theme)
+  (require 'color-theme)
+  (color-theme-initialize))
 (load-theme 'manoj-dark t)
 
 ;; Ignore start message
