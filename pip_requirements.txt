@@ -1,5 +1,4 @@
 chainer
-cupy
 flake8
 grip
 hacking
