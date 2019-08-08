@@ -31,7 +31,6 @@
     fuzzy
     gitconfig-mode
     gitignore-mode
-    hl-todo
     hlinum
     ido-ubiquitous
     ido-vertical-mode
@@ -54,6 +53,12 @@
                   epc
                   jedi
                   markdown-mode
+                  ))))
+(when (version<= "25" emacs-version)
+  (setq package-list
+        (append package-list
+                '(
+                  hl-todo
                   ))))
 (unless package-archive-contents
   (package-refresh-contents))
