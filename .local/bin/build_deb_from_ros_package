@@ -1,0 +1,56 @@
+#!/bin/sh
+
+set -x
+
+sudo apt-get install python-bloom fakeroot dpkg-dev debhelper
+
+HERE=$(pwd)
+
+CMAKE_PROJECT_NAME=$(cat CMakeLists.txt | grep "project(" | sed 's/project(\(.*\))/\1/g')
+PACKAGE_NAME=$(cat package.xml | grep "<name>" | sed 's#.*<name>\(.*\)</name>#\1#g')
+if [ -f CMakeLists.txt -a -f package.xml -a $CMAKE_PROJECT_NAME = $PACKAGE_NAME ]; then
+    ROS_PACKAGE_NAME=$CMAKE_PROJECT_NAME
+else
+    echo "\n\033[01;31m[$(basename $0)] Current directory is not ROS package. Exitting...\033[00m\n"
+    notify-send -i gnome-terminal -t 3000 -u normal \
+                "Build failed!" "Current directory is not ROS package."
+    exit 1
+fi
+
+if [ -d "debian" ]; then
+    rm -rf debian/
+fi
+if [ -d "obj-x86_64-linux-gnu" ]; then
+    rm -rf obj-x86_64-linux-gnu/
+fi
+
+echo "\n\033[01;34m[$(basename $0)] Building ${ROS_PACKAGE_NAME} ...\033[00m\n"
+
+DEB_PACKAGE_NAME=$(echo ${ROS_PACKAGE_NAME} | sed 's/_/-/g')
+DEB_PACKAGE_PATH="${HERE}/../ros-${ROS_DISTRO}-${DEB_PACKAGE_NAME}_*.deb"
+
+bloom-generate rosdebian \
+    --os-name $(lsb_release -is | tr A-Z a-z) \
+    --os-version $(lsb_release -cs) \
+    --ros-distro ${ROS_DISTRO}
+fakeroot debian/rules binary
+
+if [ $(echo $?) -eq 2 ]; then
+    dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+    fakeroot debian/rules binary
+fi
+
+rm -rf debian/ obj-x86_64-linux-gnu/
+
+set +x
+
+if [ -f $DEB_PACKAGE_PATH ]; then
+    echo "\n\033[01;36m[$(basename $0)] $(basename ${DEB_PACKAGE_PATH}) was successfully built!\033[00m\n"
+    notify-send -i gnome-terminal -t 3000 -u normal \
+                "Build succeeded!" "$(basename ${DEB_PACKAGE_PATH}) was successfully built."
+else
+    echo "\n\033[01;31m[$(basename $0)] Could not built .deb package!\033[00m\n"
+    notify-send -i gnome-terminal -t 3000 -u normal \
+                "Build failed!" "Could not build .deb package."
+    exit 2
+fi
