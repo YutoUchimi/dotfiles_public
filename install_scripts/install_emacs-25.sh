@@ -9,10 +9,10 @@ fi
 
 set -x
 
-sudo add-apt-repository ppa:kelleyk/emacs
+sudo add-apt-repository -y ppa:kelleyk/emacs
 sudo apt-get update
-sudo apt-get install emacs25
-sudo update-alternatives --config emacs
+sudo apt-get install -y emacs25
+sudo ln -sf $(which emacs25) $(which emacs)
 
 set +x
 
