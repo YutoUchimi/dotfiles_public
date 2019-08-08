@@ -187,7 +187,7 @@ set_cuda () {
 
 show_cuda () {
     if ( ! which nvcc > /dev/null ); then
-        echo "[$0] To show CUDA, please run nvidia-cuda-toolkit.";
+        echo "[$0] To show CUDA, please install nvidia-cuda-toolkit.";
         return;
     fi
 
