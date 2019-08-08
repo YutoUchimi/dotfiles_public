@@ -10,9 +10,9 @@
 ;; Package archives
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/"))
 (package-initialize)
 
 ;; Automatically install packages
@@ -22,6 +22,7 @@
     auto-complete
     cmake-mode
     color-theme
+    diminish
     dockerfile-mode
     fill-column-indicator
     flycheck
@@ -38,21 +39,22 @@
     mozc
     powerline
     rainbow-delimiters
+    rainbow-mode
     smex
     trr
     yaml-mode
     yasnippet
     yasnippet-snippets
     ))
-(if (version<= "24.4" emacs-version)
-    (setq package-list
-          (append package-list
-                  '(
-                    deferred
-                    epc
-                    jedi
-                    markdown-mode
-                    ))))
+(when (version<= "24.4" emacs-version)
+  (setq package-list
+        (append package-list
+                '(
+                  deferred
+                  epc
+                  jedi
+                  markdown-mode
+                  ))))
 (unless package-archive-contents
   (package-refresh-contents))
 (dolist (package package-list)
@@ -60,8 +62,8 @@
     (package-install package)))
 
 ;; Package required from function (string-trim ...)
-(if (version<= "24.4" emacs-version)
-    (require 'subr-x))
+(when (version<= "24.4" emacs-version)
+  (require 'subr-x))
 
 ;; Setting for Japanese
 (require 'mozc)
@@ -84,16 +86,15 @@
 (setq ac-use-fuzzy t)
 
 ;; Auto complete for python
-(if (package-installed-p 'jedi)
-    (progn (require 'jedi)
-           (add-hook 'python-mode-hook
-                     '(lambda ()
-                        (jedi:setup)
-                        (setq jedi:complete-on-dot t)
-                        ;; (setq jedi:get-in-function-call-delay 50)
-                        ;; (jedi:install-server)
-                        )))
-  t)
+(when (package-installed-p 'jedi)
+  (require 'jedi)
+  (add-hook 'python-mode-hook
+            '(lambda ()
+               (jedi:setup)
+               (setq jedi:complete-on-dot t)
+               ;; (setq jedi:get-in-function-call-delay 50)
+               ;; (jedi:install-server)
+               )))
 
 ;; TRR
 (require 'trr)
@@ -108,37 +109,44 @@
 ;; Flycheck-cpplint
 ;; If roslint/cpplint exists, use that script
 ;; If not, use manually installed script
-(if (file-exists-p "~/.local/lib/flycheck-google-cpplint.el")
-    (eval-after-load 'flycheck
-      '(progn
-         (load "~/.local/lib/flycheck-google-cpplint.el")
-         (defun enable-cpplint ()
-           (flycheck-select-checker 'c/c++-googlelint))
-         (add-hook 'c-mode-hook 'enable-cpplint)
-         (add-hook 'c++-mode-hook 'enable-cpplint)
-         (custom-set-variables
-          '(flycheck-c/c++-googlelint-executable "/usr/local/bin/cpplint.py")
-          '(flycheck-googlelint-verbose "0")
-          '(flycheck-googlelint-filter "-whitespace,+whitespace/braces")
-          '(flycheck-googlelint-linelength "80")
-          ;; headers is not implemented in some cpplint version.
-          ;; '(flycheck-googlelint-headers "hpp")
-          '(flycheck-googlelint-extensions "c,cpp,h,hpp"))
-         (let (fname)
-           (if (version<= "24.4" emacs-version)
-               (setq fname
-                     (concat "/opt/ros/"
-                             (string-trim
-                              (shell-command-to-string "rosversion -d"))
-                             "/lib/roslint/cpplint"))
-             (setq fname "/opt/ros/indigo/lib/roslint/cpplint"))
-           (if (file-exists-p fname)
+(when (file-exists-p "~/.local/lib/flycheck-google-cpplint.el")
+  (eval-after-load 'flycheck
+    '(progn
+       (load "~/.local/lib/flycheck-google-cpplint.el")
+       (defun enable-cpplint ()
+         (flycheck-select-checker 'c/c++-googlelint))
+       (add-hook 'c-mode-hook 'enable-cpplint)
+       (add-hook 'c++-mode-hook 'enable-cpplint)
+       (custom-set-variables
+        '(flycheck-c/c++-googlelint-executable "~/.local/bin/cpplint.py")
+        '(flycheck-googlelint-verbose "0")
+        '(flycheck-googlelint-filter "-whitespace,+whitespace/braces")
+        '(flycheck-googlelint-linelength "80")
+        ;; headers is not implemented in some cpplint version.
+        ;; '(flycheck-googlelint-headers "hpp")
+        '(flycheck-googlelint-extensions "c,cpp,h,hpp"))
+       (defun select-ros-cpplint ()
+         (if (version<= "24.4" emacs-version)
+             (when (file-exists-p
+                    (concat "/opt/ros/"
+                            (string-trim
+                             (shell-command-to-string "rosversion -d"))
+                            "/lib/roslint/cpplint"))
                (custom-set-variables
-                '(flycheck-c/c++-googlelint-executable fname)
-                '(flycheck-googlelint-linelength "120"))
-             t)
-           )))
-  t)
+                '(flycheck-c/c++-googlelint-executable
+                  (concat "/opt/ros/"
+                          (string-trim
+                           (shell-command-to-string "rosversion -d"))
+                          "/lib/roslint/cpplint"))
+                '(flycheck-googlelint-linelength "120")))
+           (when (file-exists-p "/opt/ros/indigo/lib/roslint/cpplint")
+             (custom-set-variables
+              '(flycheck-c/c++-googlelint-executable
+                "/opt/ros/indigo/lib/roslint/cpplint")
+              '(flycheck-googlelint-linelength "120")))
+           ))
+       (select-ros-cpplint)
+       )))
 
 ;; Display flycheck errors
 (eval-after-load 'flycheck
@@ -198,11 +206,10 @@
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 
-;; Theme (disabeld with emacs -nw)
+;; Theme
 (require 'color-theme)
 (color-theme-initialize)
-(if (display-graphic-p)
-    (load-theme 'misterioso t))
+(load-theme 'manoj-dark t)
 
 ;; Ignore start message
 (setq inhibit-startup-message t)
@@ -292,13 +299,29 @@
 ;; Customize mode line
 (require 'powerline)
 (powerline-default-theme)
+(custom-set-variables
+ '(powerline-display-buffer-size nil)
+ '(powerline-display-mule-info nil))
+(custom-set-faces
+ '(mode-line-buffer-id
+   ((t (:background "color-25" :foreground "color-250" :weight bold
+                    :height 0.9))))
+ '(mode-line-buffer-id-inactive
+   ((t (:background "color-18" :foreground "color-242" :weight bold
+                    :height 0.9))))
+ '(powerline-active0
+   ((t (:inherit mode-line :foreground "color-20" :weight bold))))
+ '(powerline-active2
+   ((t (:inherit mode-line :background "green" :foreground "black")))))
 
 ;; No display menu bar
 (menu-bar-mode -1)
 
 ;; Display line number
 (require 'hlinum)
-(global-linum-mode t)
+(if (version<= "26.0.50" emacs-version)
+    (global-display-line-numbers-mode)
+  (global-linum-mode t))
 (hlinum-activate)
 (custom-set-faces
  '(linum-highlight-face ((t (:foreground "black"
@@ -324,6 +347,7 @@
                markdown-mode-hook
                nxml-mode-hook
                python-mode-hook
+               rst-mode-hook
                sh-mode-hook
                yaml-mode-hook
                )))
@@ -386,6 +410,20 @@
    ((t (:foreground "yellow" :inverse-video t :weight bold))))
  )
 
+;; Colorize color name
+(require 'rainbow-mode)
+(setq rainbow-ansi-colors t)
+(setq rainbow-html-colors t)
+(setq rainbow-latex-colors t)
+(setq rainbow-x-colors t)
+(add-hook 'css-mode-hook 'rainbow-mode)
+(add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
+(add-hook 'html-mode-hook 'rainbow-mode)
+(add-hook 'less-mode-hook 'rainbow-mode)
+(add-hook 'php-mode-hook 'rainbow-mode)
+(add-hook 'scss-mode-hook 'rainbow-mode)
+(add-hook 'web-mode-hook 'rainbow-mode)
+
 ;; Automatically reload buffer
 (global-auto-revert-mode t)
 
@@ -407,7 +445,7 @@
 (global-set-key "\C-xj" 'goto-line)
 
 ;; Display current function name
-(which-function-mode 1)
+(which-function-mode 0)
 
 ;; Automatically open with selected mode
 (require 'dockerfile-mode)
@@ -435,7 +473,7 @@
              (concat "/opt/ros/"
                      (string-trim (shell-command-to-string "rosversion -d"))
                      "/share/emacs/site-lisp"))
-(if (package-installed-p 'rosemacs-config)
+(if (file-exists-p (concat (car load-path) "/rosemacs-config.el"))
     (require 'rosemacs-config))
 
 ;; Open png, jpg files as image (disabled when emacs -nw)
@@ -445,32 +483,43 @@
 (require 'hl-todo)
 (global-hl-todo-mode)
 (custom-set-faces
- '(hl-todo ((t (:foreground "#cc9393" :inverse-video t :weight bold)))))
+ '(hl-todo ((t (:inverse-video t :weight bold)))))
 (custom-set-variables
  '(hl-todo-keyword-faces
    (quote
-    (("HOLD" . "#d0bf8f")
-     ("TODO" . "#cc9393")
-     ("NEXT" . "#dca3a3")
-     ("THEM" . "#dc8cc3")
-     ("PROG" . "#5f7f5f")
-     ("OK" . "#7cb8bb")
-     ("OKAY" . "#7cb8bb")
-     ("DONT" . "#8c5353")
-     ("FAIL" . "#8c5353")
-     ("DONE" . "#7cb8bb")
-     ("NOTE" . "#5f7f5f")
-     ("KLUDGE" . "#d0bf8f")
-     ("HACK" . "#d0bf8f")
-     ("FIXME" . "#cc9393")
-     ("XXX" . "#cc9393")
-     ("XXXX" . "#cc9393")
-     ("???" . "#cc9393")
-     ("DEBUG" . "#dc8cc3")
-     ("INFO" . "#5f7f5f")
-     ("WARNING" . "#cc9393")
-     ("ERROR" . "#8c5353")
-     ("FATAL" . "#8c5353")))))
+    (("HOLD" . "#f0f030")
+     ("TODO" . "#f0f030")
+     ("NEXT" . "#f0f030")
+     ("THEM" . "#d080c0")
+     ("PROG" . "#90d000")
+     ("OK" . "#70d0e0")
+     ("OKAY" . "#70d0e0")
+     ("OKEY" . "#70d0e0")
+     ("DONT" . "#f00000")
+     ("FAIL" . "#f00000")
+     ("DONE" . "#70d0e0")
+     ("NOTE" . "#90d000")
+     ("DEPRECATED" . "#f0f030")
+     ("DEPRECATION" . "#f0f030")
+     ("KLUDGE" . "#f0f030")
+     ("HACK" . "#f0f030")
+     ("FIXME" . "#f0f030")
+     ("XXX" . "#f0f030")
+     ("XXXX" . "#f0f030")
+     ("???" . "#f0f030")
+     ("DEBUG" . "#d080c0")
+     ("INFO" . "#90d000")
+     ("WARNING" . "#f0f030")
+     ("ERROR" . "#f00000")
+     ("FATAL" . "#f00000")))))
+
+;; Don't show some mode name in mode line
+(require 'diminish)
+(diminish 'auto-complete-mode)
+(diminish 'eldoc-mode)
+(diminish 'global-whitespace-mode)
+(diminish 'rainbow-mode)
+(diminish 'yas-minor-mode)
 
 (provide 'init)
 ;;; init.el ends here
