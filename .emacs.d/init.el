@@ -36,6 +36,7 @@
     ido-vertical-mode
     matlab-mode
     mozc
+    package-utils
     powerline
     rainbow-delimiters
     rainbow-mode
