@@ -55,6 +55,7 @@ RUN apt-get update -qq && \
         python-setuptools \
         python-vtk \
         rlwrap \
+        software-properties-common \
         ssh \
         sudo \
         tcl-vtk \

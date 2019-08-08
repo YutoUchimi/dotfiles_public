@@ -58,6 +58,7 @@ RUN apt-get update -qq && \
         python-setuptools \
         python-wstool \
         rlwrap \
+        software-properties-common \
         ssh \
         sudo \
         wget \
