@@ -54,7 +54,6 @@ copy_dotfiles () {
        ${repo_path}/.emacs.d \
        ${repo_path}/.gitconfig \
        ${repo_path}/.gitignore_global \
-       ${repo_path}/.gpu_checker.cfg \
        ${repo_path}/.local \
        ${repo_path}/.rviz \
        ${repo_path}/.tmux.conf \
