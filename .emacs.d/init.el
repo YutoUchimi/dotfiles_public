@@ -324,14 +324,17 @@
 (menu-bar-mode -1)
 
 ;; Display line number
-(require 'hlinum)
-(if (version<= "26.0.50" emacs-version)
-    (global-display-line-numbers-mode)
+(if (version<= "24.4" emacs-version)
+    (progn
+      (require 'hlinum)
+      (if (version<= "26.0.50" emacs-version)
+          (global-display-line-numbers-mode)
+        (global-linum-mode t))
+      (hlinum-activate)
+      (custom-set-faces
+       '(linum-highlight-face ((t (:foreground "black"
+                                   :background "red"))))))
   (global-linum-mode t))
-(hlinum-activate)
-(custom-set-faces
- '(linum-highlight-face ((t (:foreground "black"
-                             :background "red")))))
 
 ;; Display column number
 (column-number-mode t)
