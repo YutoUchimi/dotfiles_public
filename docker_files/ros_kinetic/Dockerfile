@@ -32,6 +32,7 @@ RUN apt-get update -qq && \
         ibus-mozc \
         indicator-multiload \
         ipython \
+        less \
         libboost-all-dev \
         libeigen3-dev \
         libflann-dev \
