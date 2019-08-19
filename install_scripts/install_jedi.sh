@@ -1,7 +1,5 @@
 #!/bin/sh
 
-sh $HOME/dotfiles/install_scripts/install_emacs-24.4.sh
-
 set -x
 sudo -H pip install epc jedi virtualenv
 set +x
