@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Clear page cache. Ignore dentry and inodes here.
+sync
+sudo sh -c "echo 1 > /proc/sys/vm/drop_caches"
+
+# Clear swap cache
+sudo swapoff -a
+sudo swapon -a
