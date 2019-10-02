@@ -158,6 +158,12 @@ set_catkin_workspace () {
         rossetip
     fi
 
+    # Add node name to ROS console
+    export ROSCONSOLE_FORMAT='[${severity}] [${time}] [${node}]: ${message}'
+
+    # RViz for a laptop user
+    export OGRE_RTT_MODE=Copy
+
     # Esc-p : rostopic search
     bind -x '"\ep" : percol_search_rostopic'
 
@@ -262,9 +268,6 @@ bind -x '"\C-r": percol_search_history'
 # Setup ROS
 # Please specify which workspace to use by a number.
 set_catkin_workspace 1
-
-# Rviz for a laptop user
-export OGRE_RTT_MODE=Copy
 
 # Setup CUDA
 set_cuda
